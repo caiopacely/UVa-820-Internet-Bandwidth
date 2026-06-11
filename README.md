@@ -5,8 +5,8 @@
 ### Integrantes
 
 * Caio Pacely
-* ---
-* ---
+* Catarina Garcia
+* Paulo de Tarso
 
 ---
 
@@ -170,9 +170,8 @@ Utilizaremos a rede apresentada no enunciado.
 
 ## Representação da Rede
 
-```text
-<img width="1488" height="1057" alt="image" src="https://github.com/user-attachments/assets/bcd1e962-7d96-451c-ae47-4f7ecacb6958" />
-```
+![Representação da Rede](https://github.com/user-attachments/assets/bcd1e962-7d96-451c-ae47-4f7ecacb6958)
+
 ---
 
 # 6. Execução Manual do Ford-Fulkerson
