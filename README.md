@@ -130,25 +130,27 @@ Dessa forma, as restrições do problema são modeladas corretamente pela rede d
 
 # 4. Justificativa da Escolha do Algoritmo
 
-Foi escolhido o algoritmo **Ford-Fulkerson**.
+Foi escolhido o algoritmo **Edmonds-Karp**, uma implementação específica do algoritmo de Ford-Fulkerson.
 
-O Ford-Fulkerson encontra sucessivamente caminhos aumentantes entre a origem e o destino e envia fluxo através deles até que não seja mais possível aumentar o fluxo total.
+A principal diferença é que o Edmonds-Karp utiliza uma **Busca em Largura (BFS)** para encontrar os caminhos aumentantes no grafo residual.
 
 A escolha foi feita porque:
 
-* É o algoritmo estudado em sala para problemas de fluxo máximo;
-* Resolve diretamente o problema proposto;
-* Permite visualizar claramente o conceito de caminho aumentante;
-* Facilita a compreensão do funcionamento do grafo residual.
+- Garante um comportamento determinístico;
+- É mais fácil de implementar e depurar;
+- Evita escolhas ruins de caminhos aumentantes;
+- Possui prova formal de complexidade polinomial;
+- É adequado para os limites do problema.
 
-A cada iteração:
+O algoritmo funciona da seguinte forma:
 
-1. Encontramos um caminho da origem ao destino;
-2. Calculamos o gargalo do caminho;
-3. Atualizamos o fluxo;
-4. Atualizamos o grafo residual.
+1. Executa uma BFS no grafo residual para encontrar um caminho da origem ao destino;
+2. Determina o gargalo do caminho encontrado;
+3. Envia fluxo igual ao gargalo;
+4. Atualiza o grafo residual;
+5. Repete o processo até que a BFS não encontre mais caminhos aumentantes.
 
-O processo termina quando não existe mais caminho aumentante.
+Quando não existir mais caminho entre a origem e o destino no grafo residual, o fluxo encontrado será o fluxo máximo da rede.
 
 ---
 
@@ -174,7 +176,7 @@ Utilizaremos a rede apresentada no enunciado.
 
 ---
 
-# 6. Execução Manual do Ford-Fulkerson
+# 6. Execução Manual do Algoritmo Edmonds-Karp
 
 ## Estado Inicial
 
@@ -184,17 +186,38 @@ Fluxo total:
 0
 ```
 
+Capacidades iniciais:
+
+```text
+1→2 = 20
+1→3 = 10
+2→3 = 5
+2→4 = 10
+3→4 = 20
+```
+
 ---
 
-## Caminho Aumentante 1
+## Iteração 1
 
-Escolhemos o caminho:
+A BFS parte do vértice 1.
+
+Os vértices alcançados são:
+
+```text
+1 → 2
+1 → 3
+```
+
+Ao expandir o vértice 2, a BFS encontra o destino 4.
+
+Assim, o primeiro caminho aumentante encontrado é:
 
 ```text
 1 → 2 → 4
 ```
 
-Capacidades disponíveis:
+Capacidades:
 
 ```text
 1→2 = 20
@@ -219,7 +242,7 @@ min(20,10) = 10
 10
 ```
 
-### Grafo Residual
+### Atualização do Grafo Residual
 
 ```text
 1→2 = 10
@@ -231,15 +254,25 @@ min(20,10) = 10
 
 ---
 
-## Caminho Aumentante 2
+## Iteração 2
 
-Escolhemos o caminho:
+Executamos novamente a BFS.
+
+Partindo do nó 1:
+
+```text
+1 → 3
+```
+
+Ao expandir o vértice 3, alcançamos o destino 4.
+
+Caminho aumentante:
 
 ```text
 1 → 3 → 4
 ```
 
-Capacidades disponíveis:
+Capacidades:
 
 ```text
 1→3 = 10
@@ -264,7 +297,7 @@ min(10,20) = 10
 20
 ```
 
-### Grafo Residual
+### Atualização do Grafo Residual
 
 ```text
 1→3 = 0
@@ -276,9 +309,13 @@ min(10,20) = 10
 
 ---
 
-## Caminho Aumentante 3
+## Iteração 3
 
-Escolhemos o caminho:
+Executamos novamente a BFS.
+
+A partir do nó 1 ainda existe capacidade para chegar ao nó 2.
+
+A BFS encontra:
 
 ```text
 1 → 2 → 3 → 4
@@ -310,7 +347,7 @@ min(10,5,10) = 5
 25
 ```
 
-### Grafo Residual
+### Atualização do Grafo Residual
 
 ```text
 1→2 = 5
@@ -320,22 +357,38 @@ min(10,5,10) = 5
 
 ---
 
-## Encerramento
+## Iteração 4
 
-Após a terceira iteração não existe mais caminho aumentante que conecte o nó 1 ao nó 4.
+Executamos uma nova BFS.
 
-Portanto, o algoritmo termina.
+Partindo do nó 1:
+
+```text
+1 → 2
+```
+
+Porém:
+
+```text
+2→4 = 0
+2→3 = 0
+```
+
+Não existe caminho que alcance o nó 4.
+
+Portanto, a BFS falha em encontrar um novo caminho aumentante.
+
+O algoritmo é encerrado.
 
 ---
 
 ## Resumo das Iterações
 
-| Caminho Aumentante | Gargalo | Fluxo Acumulado |
-| ------------------ | ------- | --------------- |
-| 1 → 2 → 4          | 10      | 10              |
-| 1 → 3 → 4          | 10      | 20              |
-| 1 → 2 → 3 → 4      | 5       | 25              |
-
+| Iteração | Caminho Encontrado pela BFS | Gargalo | Fluxo Acumulado |
+|-----------|---------------------------|----------|-----------------|
+| 1 | 1 → 2 → 4 | 10 | 10 |
+| 2 | 1 → 3 → 4 | 10 | 20 |
+| 3 | 1 → 2 → 3 → 4 | 5 | 25 |
 ---
 
 # 7. Verificação da Resposta Final
@@ -377,4 +430,8 @@ Isso significa que a rede consegue transmitir até 25 unidades de dados por unid
 
 # Conclusão
 
-O problema Internet Bandwidth pode ser modelado diretamente como uma rede de fluxo. Os computadores são representados por vértices e as conexões por arestas com capacidades. Utilizando o algoritmo Ford-Fulkerson, encontramos sucessivos caminhos aumentantes até que não seja mais possível enviar fluxo adicional da origem para o destino. O valor acumulado ao final do processo corresponde à largura de banda máxima da rede.
+O problema **Internet Bandwidth** pode ser modelado diretamente como uma rede de fluxo, onde os computadores são representados por vértices e as conexões da rede por arestas com capacidades correspondentes à largura de banda máxima permitida.
+
+Utilizando o algoritmo **Edmonds-Karp**, foi possível encontrar sucessivos caminhos aumentantes por meio da **Busca em Largura (BFS)**. A cada iteração, foi identificado o gargalo do caminho, enviado o fluxo correspondente e atualizado o grafo residual até que não existissem mais caminhos disponíveis entre a origem e o destino.
+
+Ao final do processo, o fluxo acumulado obtido foi de **25 unidades**, representando a largura de banda máxima que pode ser transmitida entre os nós 1 e 4, respeitando todas as restrições de capacidade da rede.
